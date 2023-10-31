@@ -1,4 +1,5 @@
 import express from 'express';
+const app = express()
 import cors from 'cors';
 import {
     MongoClient,
@@ -6,14 +7,13 @@ import {
     ServerApiVersion
 } from 'mongodb';
 import dotenv from 'dotenv';
+dotenv.config()
 
-const app = express()
 const port = process.env.PORT || 5001
 
 // middleware
 app.use(cors())
 app.use(express.json())
-dotenv.config()
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.oibe727.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -27,7 +27,6 @@ const client = new MongoClient(uri, {
 
 async function run() {
     try {
-        await client.connect();
 
         // >====> collections <====<
         const servicesCollection = client.db('carDoctor').collection('services')
@@ -87,10 +86,6 @@ async function run() {
 
         })
 
-
-        await client.db("admin").command({
-            ping: 1
-        });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {}
 }
