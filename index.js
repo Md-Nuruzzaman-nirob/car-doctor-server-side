@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import {
     MongoClient,
+    ObjectId,
     ServerApiVersion
 } from 'mongodb';
 import dotenv from 'dotenv';
@@ -26,7 +27,66 @@ const client = new MongoClient(uri, {
 
 async function run() {
     try {
-        // await client.connect();
+        await client.connect();
+
+        // >====> collections <====<
+        const servicesCollection = client.db('carDoctor').collection('services')
+        const ordersCollection = client.db('carDoctor').collection('orders')
+
+
+        // >====> get many services <====<
+        app.get('/services', async (req, res) => {
+            const result = await servicesCollection.find().toArray()
+            res.send(result)
+        })
+
+
+        // >====> get many orders <====<
+        app.get('/orders', async (req, res) => {
+            const result = await ordersCollection.find().toArray()
+            res.send(result)
+        })
+
+
+        // >====> post one orders <====<
+        app.post('/orders', async (req, res) => {
+            const newOrder = req.body
+            const result = await ordersCollection.insertOne(newOrder)
+            res.send(result)
+        })
+
+
+        // >====> patch one orders <====<
+        app.patch('/orders/:id', async (req, res) => {
+            const id = req.params.id
+            const updatedOrder = req.body
+            const filter = {
+                _id: new ObjectId(id)
+            }
+            const updateItems = {}
+            const result = await ordersCollection.updateOne(filter, updateItems)
+            res.send(result)
+        })
+
+
+        // >====> delete one order <====<
+        app.delete('/orders/:id', async (req, res) => {
+            const id = req.params.id
+            const filter = {
+                _id: new ObjectId(id)
+            }
+            const result = await ordersCollection.deleteOne(filter)
+            res.send(result)
+
+        })
+
+        // >====> delete many orders <====<
+        app.delete('/orders', async (req, res) => {
+            const result = await ordersCollection.deleteMany()
+            res.send(result)
+
+        })
+
 
         await client.db("admin").command({
             ping: 1
